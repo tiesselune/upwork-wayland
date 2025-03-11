@@ -7,6 +7,7 @@
 #include <gdk-pixbuf-2.0/gdk-pixbuf/gdk-pixbuf.h>
 
 #include <X11/Xlib.h>
+#include <X11/extensions/scrnsaver.h>
 
 #define TEMPFILE "/tmp/upwork.png"
 
@@ -193,6 +194,18 @@ extern int XGetWindowProperty(Display *display, Window w, Atom property, long of
     *prop = malloc(len);
     memcpy(*prop, buf, len);
     return Success;
+}
+
+// This is seemingly unused. But GnomeIdleTime impl is not used too?..
+Bool (*real_XScreenSaverQueryExtension)();
+extern Bool XScreenSaverQueryExtension(Display *dpy, int *event_base_return, int *error_base_return) {
+    if(!real_XScreenSaverQueryExtension) {
+        real_XScreenSaverQueryExtension = dlsym(RTLD_NEXT, "XScreenSaverQueryExtension");
+    }
+    printf("XSSQE: %p %p=%d %p=%d\n", dpy, event_base_return, *event_base_return, error_base_return, *error_base_return);
+    Bool res = real_XScreenSaverQueryExtension(dpy, event_base_return, error_base_return);
+    printf("XSSQE: %p=%d %p=%d -> %d\n", event_base_return, *event_base_return, error_base_return, *error_base_return, res);
+    return res;
 }
 
 #ifdef TEST

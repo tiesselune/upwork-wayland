@@ -1,5 +1,6 @@
-CFLAGS = $(shell pkg-config gdk-pixbuf-2.0 x11 --cflags)
-LDFLAGS = $(shell pkg-config gdk-pixbuf-2.0 x11 --libs)
+PKGS = gdk-pixbuf-2.0 x11 xscrnsaver
+CFLAGS = $(shell pkg-config $(PKGS) --cflags)
+LDFLAGS = $(shell pkg-config $(PKGS) --libs)
 MYFLAGS = -fPIC -ldl -O2
 
 all: gdk-screenshotter.so
