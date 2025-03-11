@@ -73,12 +73,6 @@ extern gboolean gdk_pixbuf_save_to_callback(GdkPixbuf* pb, GdkPixbufSaveFunc fn,
     va_end(list);
     printf("\n");
 
-    // save to a file...
-    char filename[256];
-    sprintf(filename, "/tmp/scrn-%p.png", (void*)pb);
-    gdk_pixbuf_save(pb, filename, "png", NULL, NULL);
-    printf("Also saved to to %s\n", filename);
-
     wanna_break_dimensions = 1;
 
     gboolean res = real_gdk_pixbuf_save_to_callback(pb, fn, dat, typ, err, NULL); // FIXME
