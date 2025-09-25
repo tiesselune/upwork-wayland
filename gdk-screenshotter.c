@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -11,20 +12,30 @@
 
 #define TEMPFILE "/tmp/upwork.png"
 
-int grim() {
+int screenshot() {
     // override environment
     int pid = fork();
     if(pid == 0) {
         // child
         printf("in child\n");
         char *wld = getenv("WAYLAND_DISPLAY_REAL");
+        char *command = getenv("UPWORK_SCREENSHOT_COMMAND");
+        int commandLen = strlen(command);
+        int locationLen = strlen(TEMPFILE);
+        char *complete_command = malloc(commandLen + locationLen + 2);
+        memcpy(complete_command, command, commandLen);
+        complete_command[commandLen] = ' ';
+        memcpy(complete_command + commandLen + 1, TEMPFILE, locationLen + 1);
+        printf("complete command %s\n", complete_command);
         printf("wl disp: %s\n", wld);
         if(wld) {
             setenv("WAYLAND_DISPLAY", wld, 1);
         } else {
             printf("WARNING: no WAYLAND_DISPLAY_REAL\n");
         }
-        execlp("grim", "-c", TEMPFILE, NULL);
+        execlp("/usr/bin/env","-S","bash","-c", complete_command,NULL);
+        perror("exec");
+        free(complete_command);
     } else {
         printf("in parent: %d\n", pid);
         int retval = -1;
@@ -33,16 +44,17 @@ int grim() {
     }
 }
 
+
 extern GdkPixbuf* gdk_pixbuf_get_from_window(void *window, gint src_x, gint src_y, gint width, gint height) {
-    printf("Before executing grim\n");
-    int res = grim();
+    printf("Preparing to take screenshot...\n");
+    int res = screenshot();
     if(res != 0) {
         printf("grim call failed: %d\n", res);
         return NULL;
     }
-    printf("Grim success\n");
+    printf("Screenshot success\n");
     GError *err = NULL;
-    GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file_at_scale(TEMPFILE, width-src_x, height-src_y, FALSE, &err);
+    GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(TEMPFILE, &err);
     // clean up grabage
     unlink(TEMPFILE);
     if(err || !pixbuf) {
@@ -80,7 +92,8 @@ extern gboolean gdk_pixbuf_save_to_callback(GdkPixbuf* pb, GdkPixbufSaveFunc fn,
     return res;
 }
 
-Status (*real_XGetWindowAttributes)();
+
+Status (*real_XGetWindowAttributes)(Display *display, Window w, XWindowAttributes *attrs);
 extern Status XGetWindowAttributes(Display *display, Window w, XWindowAttributes *attrs) {
     if(!real_XGetWindowAttributes) {
         real_XGetWindowAttributes = dlsym(RTLD_NEXT, "XGetWindowAttributes");
@@ -145,7 +158,8 @@ int get_active_window_pid() {
     return atoi(buf);
 }
 
-int (*real_XGetWindowProperty)();
+
+int (*real_XGetWindowProperty)(Display *display, Window w, Atom property, long offset, long length, Bool delete, Atom req_type, Atom *actual_type, int *actual_fmt, unsigned long *nitems, unsigned long *bytes_after, unsigned char **prop);
 extern int XGetWindowProperty(Display *display, Window w, Atom property, long offset, long length, Bool delete, Atom req_type, Atom *actual_type, int *actual_fmt, unsigned long *nitems, unsigned long *bytes_after, unsigned char **prop) {
     // property:
     // x+35 = _NET_ACTIVE_WINDOW // nitems should be 1
@@ -191,7 +205,8 @@ extern int XGetWindowProperty(Display *display, Window w, Atom property, long of
 }
 
 // This is seemingly unused. But GnomeIdleTime impl is not used too?..
-Bool (*real_XScreenSaverQueryExtension)();
+
+Bool (*real_XScreenSaverQueryExtension)(Display *dpy, int *event_base_return, int *error_base_return);
 extern Bool XScreenSaverQueryExtension(Display *dpy, int *event_base_return, int *error_base_return) {
     if(!real_XScreenSaverQueryExtension) {
         real_XScreenSaverQueryExtension = dlsym(RTLD_NEXT, "XScreenSaverQueryExtension");

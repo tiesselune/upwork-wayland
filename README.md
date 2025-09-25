@@ -1,20 +1,20 @@
 Upwork-wayland
 ==============
 
-This project is a simple bridge between Upwork or any other tool supporting Gnome's screenshot protocol
-and your favourite [wlroots](https://github.com/swaywm/wlroots-rs)-based Wayland composer like [Sway](https://swaywm.org).
+This project allows Upwork Screenshots to work under Wayland by replacing its GDK API calls.
 
-Install dependencies, run the script as a daemon and enjoy.
+It requires the [`flameshot` tool](https://flameshot.org/) tool to be installed and on path, and works on Gnome 49+ under wayland.
 
-Make sure that both the script and Upwork application use the same DBus session bus,
-i.e. their DBUS_SESSION_BUS_ADDRESS environment variables have the same value!
-Otherwise they won't be able to see each other.
+Original code (Thank you so much BTW, this is a life-saver) by [@MarSoft](https://github.com/MarSoft).
+
+Install dependencies, run `make`, then launch upwork with `./upwork.sh`.
 
 Dependencies
 ------------
 
-- Python 3.5 or newer
-- `dbus-next` python package (`pip install dbus-next` should work)
-- [`grim` tool](https://github.com/emersion/grim) somewhere in `PATH`
-
-<!-- - Optional: [`swayidle`](https://github.com/swaywm/swayidle) in `PATH` - for accurate idle time calculation -->
+ - `gcc`
+ - `glib`
+ - `gdk-pixbuf`
+ - `libx11`
+ - `pkg-config`
+ - [`flameshot` tool](https://flameshot.org/) somewhere in `PATH`

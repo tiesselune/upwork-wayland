@@ -13,6 +13,12 @@ if [ -z "$WAYLAND_DISPLAY" ]; then
     exec "$UPWORK" "$@"
 fi
 
+# export command to be used for screenshots.
+# This can be edited with your favourite tool as long
+# as the very next argument of the command is the file path to be written to.
+# example : `flameshot full -p <path>` would be `flameshot full -p`
+export UPWORK_SCREENSHOT_COMMAND="flameshot full -p"
+
 # override session type detection
 export XDG_SESSION_TYPE=x11
 # save real wayland display for our .so to use
