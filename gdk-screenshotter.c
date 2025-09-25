@@ -55,7 +55,7 @@ extern GdkPixbuf* gdk_pixbuf_get_from_window(void *window, gint src_x, gint src_
     }
     printf("Screenshot success\n");
     GError *err = NULL;
-    GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(TEMPFILE &err);
+    GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(TEMPFILE, &err);
     // clean up grabage
     unlink(TEMPFILE);
     if(err || !pixbuf) {
