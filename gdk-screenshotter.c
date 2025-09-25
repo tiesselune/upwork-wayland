@@ -33,7 +33,8 @@ int screenshot() {
         } else {
             printf("WARNING: no WAYLAND_DISPLAY_REAL\n");
         }
-        execlp("/usr/bin/env","-S","bash","-c", complete_command,NULL);
+        char *shell = getenv("SHELL");
+        execlp("/usr/bin/env","-S",shell,"-c", complete_command,NULL);
         perror("exec");
         free(complete_command);
     } else {
@@ -49,12 +50,12 @@ extern GdkPixbuf* gdk_pixbuf_get_from_window(void *window, gint src_x, gint src_
     printf("Preparing to take screenshot...\n");
     int res = screenshot();
     if(res != 0) {
-        printf("grim call failed: %d\n", res);
+        printf("ScreenshotS call failed: %d\n", res);
         return NULL;
     }
     printf("Screenshot success\n");
     GError *err = NULL;
-    GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(TEMPFILE, &err);
+    GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file(TEMPFILE &err);
     // clean up grabage
     unlink(TEMPFILE);
     if(err || !pixbuf) {
